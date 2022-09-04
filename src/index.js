@@ -5,14 +5,20 @@ import routerAuth from "./routes/auth.js";
 import routerHotel from "./routes/hotel.js";
 import routerRoom from "./routes/room.js";
 import routerUsers from "./routes/users.js";
+import cookieParser from "cookie-parser";
+import cors from "cors";
 
 
 const app = express();
+
+app.use(cors());
+
 
 const PORT = process.env.PORT || 5000;
 
 dotenv.config();
 
+app.use(cookieParser());
 
 // connect DB
  async function connectDB() {
@@ -40,9 +46,10 @@ app.get("/", (req, res) => {
 
 // middleware
 app.use("/api/auth", routerAuth);
+app.use("/api/user", routerUsers);
 app.use("/api/hotel", routerHotel);
 app.use("/api/room", routerRoom);
-app.use("/api/user", routerUsers);
+
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

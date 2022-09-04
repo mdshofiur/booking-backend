@@ -1,16 +1,26 @@
 import express from "express";
-import SchemaHotel from "../model/hotel.model.js";
+import { countByCity, createHotel, deleteById, getallhotel, getById, updateById } from "../controller/hotel.controller.js";
+import { verifyAdmin } from "../utils/verifyToken.js";
+
 
 const routerHotel = express.Router();
 
-routerHotel.post("/", async function (req, res) {
-  const newModel = new SchemaHotel(req.body);
-  try {
-      const saveHotel = await newModel.save();
-    res.status(200).json(saveHotel);
-  } catch (err) {
-    res.status(500).json(err);
-  }
-});
+
+routerHotel.post("/", verifyAdmin, createHotel);
+
+routerHotel.get("/", getallhotel);
+
+routerHotel.get("/:id", getById);
+
+routerHotel.put("/:id", verifyAdmin, updateById);
+
+routerHotel.delete("/:id", verifyAdmin, deleteById);
+
+routerHotel.get("/query/countByCity", verifyAdmin, countByCity);
+
+routerHotel.get("/query/countByType", verifyAdmin, getallhotel);
+
+
+
 
 export default routerHotel;
