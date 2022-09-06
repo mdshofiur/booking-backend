@@ -1,29 +1,33 @@
 import SchemaHotel from "../model/hotel.model.js";
 
-
 export async function createHotel(req, res) {
-     const newModel = new SchemaHotel(req.body);
-     try {
-       const saveHotel = await newModel.save();
-       res.status(200).json(saveHotel);
-     } catch (err) {
-       res.status(500).json(err);
-     }
-}
-
-export async function getallhotel(req, res) {
+  const newModel = new SchemaHotel(req.body);
   try {
-    const updateData = await SchemaHotel.find();
-    res.status(200).json(updateData);
+    const saveHotel = await newModel.save();
+    res.status(200).json(saveHotel);
   } catch (err) {
     res.status(500).json(err);
   }
 }
 
-export async function getById(req, res) {
-  const filter = req.params.id;
+export async function getallhotel(req, res, next) {
+
+  const { min, max, ...others } = req.query;
+
   try {
-    const getDataById = await SchemaHotel.findById(filter);
+    const updateData = await SchemaHotel.find({
+      ...others,
+      cheapestPrice: { $gt: min | 1, $lt: max || 999999 },
+    }).limit(req.query.limit);
+    res.status(200).json(updateData);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getById(req, res) {
+  try {
+    const getDataById = await SchemaHotel.findById(req.params.id);
     res.status(200).json(getDataById);
   } catch (err) {
     res.status(500).json(err);
@@ -50,14 +54,14 @@ export async function updateById(req, res) {
 }
 
 export async function deleteById(req, res) {
- const filter = req.params.id;
+  const filter = req.params.id;
 
- try {
-   const updateData = await SchemaHotel.findOneAndDelete(filter);
-   res.status(200).json(updateData);
- } catch (err) {
-   res.status(500).json(err);
- }
+  try {
+    const updateData = await SchemaHotel.findOneAndDelete(filter);
+    res.status(200).json(updateData);
+  } catch (err) {
+    res.status(500).json(err);
+  }
 }
 
 export const countByCity = async (req, res, next) => {
@@ -74,5 +78,24 @@ export const countByCity = async (req, res, next) => {
   }
 };
 
+export async function countByType(req, res, next) {
+  try {
+    const hotelCount = await SchemaHotel.countDocuments({ type: "hotel" });
+    const apartmentCount = await SchemaHotel.countDocuments({
+      type: "apartment",
+    });
+    const resortCount = await SchemaHotel.countDocuments({ type: "resort" });
+    const cabinCount = await SchemaHotel.countDocuments({ type: "cabin" });
+    const londonCount = await SchemaHotel.countDocuments({ type: "london" });
 
-export async function countByType() {}
+    res.status(200).json([
+      { type: "hotel", count: hotelCount },
+      { type: "apartment", count: apartmentCount },
+      { type: "resort", count: resortCount },
+      { type: "cabin", count: cabinCount },
+      { type: "london", count: londonCount },
+    ]);
+  } catch (err) {
+    next(err);
+  }
+}
