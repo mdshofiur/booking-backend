@@ -47,7 +47,6 @@ export async function loginUser(req, res, next) {
       sameSite: "strict",
       secure: false,
     });
-
     res.status(200).json(otherDetails);
   } catch (err) {
     res.status(500).json(err);

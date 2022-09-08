@@ -1,4 +1,5 @@
 import SchemaHotel from "../model/hotel.model.js";
+import SchemaRoom from "../model/room.model.js";
 
 export async function createHotel(req, res) {
   const newModel = new SchemaHotel(req.body);
@@ -98,4 +99,18 @@ export async function countByType(req, res, next) {
   } catch (err) {
     next(err);
   }
+}
+
+export async function  getHotelRooms(req, res, next) { 
+  try {
+    const hotel = await SchemaHotel.findById(req.params.id);
+    const list = await Promise.all(hotel.rooms.map((room) => {
+      return SchemaRoom.findById(room);
+    })
+    );
+    return res.status(200).json(list);
+  } catch (e) {
+    next(e)
+    // different between next(err) and console.log(e);
+    }
 }
