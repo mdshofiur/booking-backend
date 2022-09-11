@@ -1,24 +1,24 @@
 import SchemaHotel from "../model/hotel.model.js";
 import SchemaRoom from "../model/room.model.js";
 
+export const createRoom = async (req, res, next) => {
+  const hotelId = req.params.hotelId;
+  const newRoom = new SchemaRoom(req.body);
 
-export const createRoom = async (req, res, next) => { 
-
-    const hotelId = req.params.hotelId;
-    const newRoom = new SchemaRoom(req.body);
-
+  try {
+    const saveRoom = await newRoom.save();
     try {
-        const saveRoom = await newRoom.save();
-        try {
-            await SchemaHotel.findByIdAndUpdate(hotelId, {$push: {rooms: saveRoom._id} });
-        } catch (e) {
-            next(e);
-        }
-        res.status(200).json({ saveRoom });
-    } catch (err) {
-        next(err)
+      await SchemaHotel.findByIdAndUpdate(hotelId, {
+        $push: { rooms: saveRoom._id },
+      });
+    } catch (e) {
+      next(e);
     }
-}
+    res.status(200).json({ saveRoom });
+  } catch (err) {
+    next(err);
+  }
+};
 
 export async function getallRoom(req, res) {
   try {
@@ -40,57 +40,84 @@ export async function getByIdRoom(req, res) {
 }
 
 export async function updateByIdRoom(req, res) {
-
   const hotelId = req.params.hotelId;
   const roomId = req.params.roomid;
-  const update = req.body
-  
-    try {
-      await SchemaRoom.findByIdAndUpdate(
-        roomId,
-        { $set: update },
-        {
-          new: true,
-          upsert: true,
-        }
-      );
-      try {
-        await SchemaHotel.findByIdAndUpdate(hotelId, {
-          $pull: { rooms: req.params.roomId },
-        });
-      } catch (e) {
-        next(e);
+  const update = req.body;
+
+  try {
+    await SchemaRoom.findByIdAndUpdate(
+      roomId,
+      { $set: update },
+      {
+        new: true,
+        upsert: true,
       }
-      res.status(200).json("Room is updated successfully");
-    } catch (err) {
-      next(err);
+    );
+    try {
+      await SchemaHotel.findByIdAndUpdate(hotelId, {
+        $pull: { rooms: req.params.roomId },
+      });
+    } catch (e) {
+      next(e);
+    }
+    res.status(200).json("Room is updated successfully");
+  } catch (err) {
+    next(err);
   }
-  
 }
 
-export async function deleteByIdRoom(req, res,next) {
-
+export async function deleteByIdRoom(req, res, next) {
   const hotelId = req.params.hotelId;
 
   try {
-        await SchemaRoom.findByIdAndDelete(req.params.roomid);
-       try {
-         await SchemaHotel.findByIdAndUpdate(hotelId, {
-           $pull: { rooms: req.params.roomid },
-           new: true,
-           upsert: true
-         },
-         );
-       } catch (e) {
-         next(e);
-       }
-       res.status(200).json("Room is deleted 11");
-     } catch (err) {
-       next(err);
+    await SchemaRoom.findByIdAndDelete(req.params.roomid);
+    try {
+      await SchemaHotel.findByIdAndUpdate(hotelId, {
+        $pull: { rooms: req.params.roomid },
+        new: true,
+        upsert: true,
+      });
+    } catch (e) {
+      next(e);
+    }
+    res.status(200).json("Room is deleted 11");
+  } catch (err) {
+    next(err);
   }
-  
 }
 
+// export async function RoomAvailabilityUpdate(req, res, next) {
+//   try {
+//     await SchemaRoom.updateOne(
+//       { "roomNumbers._id": req.params.id },
+//       {
+//         $push: {
+//           "roomNumbers.$.unavailableDates" : req.body.dates,
+//         },
+//       }
+//     );
+//     res.status(200).json("Rooms status has been updated successfully");
+//   } catch (err) {
+//     next(err);
+//   }
+// }
+
+export const updateRoomAvailability = async (req, res, next) => {
+  console.log(req.body.dates);
+  try {
+    await SchemaRoom.updateOne(
+      { "roomNumbers._id": req.params.id },
+      {
+        $push: {
+          "roomNumbers.$.unavailableDates": req.body.dates
+        },
+      }
+    );
+    res.status(200).json("Room status has been updated.");
+  } catch (err) {
+    next(err);
+  }
+};
 
 // export async function deleteByIdRoomNumber(req, res, next) {
 
