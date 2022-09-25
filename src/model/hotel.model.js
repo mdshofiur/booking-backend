@@ -51,6 +51,7 @@ const { Schema } = mongoose;
    },
    {
      timestamps: true,
+     usePushEach: true,
    }
  );
 

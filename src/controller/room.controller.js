@@ -105,19 +105,21 @@ export async function deleteByIdRoom(req, res, next) {
 export const updateRoomAvailability = async (req, res, next) => {
   console.log(req.body.dates);
   try {
-    await SchemaRoom.updateOne(
-      { "roomNumbers._id": req.params.id },
-      {
-        $push: {
-          "roomNumbers.$.unavailableDates": req.body.dates
-        },
-      }
-    );
-    res.status(200).json("Room status has been updated.");
+     await SchemaRoom.updateOne(
+       { "roomNumbers._id": req.params.id },
+       {
+         $push: {
+           "roomNumbers.unavailableDates": req.body.dates,
+         },
+       },
+       { upsert: true }
+     );
+    res.status(200).json("update is done");
   } catch (err) {
     next(err);
   }
 };
+
 
 // export async function deleteByIdRoomNumber(req, res, next) {
 
@@ -143,3 +145,31 @@ export const updateRoomAvailability = async (req, res, next) => {
 //     next(err);
 //   }
 // }
+
+
+    // await SchemaRoom.updateOne(
+    //   { "roomNumbers._id": req.params.id },
+    //   {
+    //     $push: {
+    //       "roomNumbers.$.unavailableDates": req.body.dates
+    //     },
+    //   }
+    // );
+
+
+    // export const updateRoomAvailability = async (req, res, next) => {
+    //   console.log(req.body.dates);
+    //   try {
+    //     await SchemaRoom.updateOne(
+    //       { "roomNumbers._id": req.params.id },
+    //       {
+    //         $push: {
+    //           "roomNumbers.$.unavailableDates": req.body.dates,
+    //         },
+    //       }
+    //     );
+    //     res.status(200).json("update is done");
+    //   } catch (err) {
+    //     next(err);
+    //   }
+    // };
