@@ -65,6 +65,7 @@ export async function deleteById(req, res) {
   }
 }
 
+// query using split
 export const countByCity = async (req, res, next) => {
   const cities = req.query.cities.split(",");
   try {
